@@ -68,7 +68,7 @@ function effectivePrice(p: (typeof products)[number]): number {
 /** Weighted product pick for a given day-offset (daysAgo). Engineers hot-seller + refund-target volume. */
 function pickProductIndex(daysAgo: number): number {
   // Base weights roughly proportional to popularity.
-  const weights = products.map((_, i) => (i < 8 ? 3 : 2));
+  const weights: number[] = products.map((_, i) => (i < 8 ? 3 : 2));
   // Hot seller: Vitamin C (index 3) sells ~3x in the last 7 days.
   if (daysAgo < 7) weights[3] = 16;
   else weights[3] = 2;
@@ -94,7 +94,7 @@ async function main() {
   await prisma.product.deleteMany();
 
   console.log("Seeding products…");
-  const productRows = [];
+  const productRows: Awaited<ReturnType<typeof prisma.product.create>>[] = [];
   for (const p of products) {
     productRows.push(
       await prisma.product.create({
