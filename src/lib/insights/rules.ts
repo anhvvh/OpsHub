@@ -111,8 +111,12 @@ export function paymentFailuresRule(s: FailureSnapshot): Insight[] {
 export function revenueDownRule(rev: PeriodComparison): Insight[] {
   if (rev.previous <= 0) return []; // no baseline — never divide by zero
   const delta = rev.current / rev.previous - 1;
-  if (delta > C.revenueDropThreshold) return [];
+  // Compare on the rounded percentage, not the raw float: 9/10-1 is
+  // -0.09999999999999998 in IEEE754, which would wrongly pass a strict
+  // "> -0.1" check on a true 10% decline (same bug class fixed in
+  // refundSpikeRule below).
   const pct = Math.round(delta * 100);
+  if (pct > C.revenueDropThreshold * 100) return [];
   return [
     {
       type: "REVENUE_DOWN",
@@ -162,8 +166,11 @@ export function hotSellerRule(products: HotSellerSnapshot[]): Insight[] {
 export function refundSpikeRule(s: RefundSpikeSnapshot): Insight[] {
   if (s.previous <= 0 || s.current < C.refundSpikeMinCount) return [];
   const delta = s.current / s.previous - 1;
-  if (delta < C.refundSpikeThreshold) return [];
+  // Compare on the rounded percentage, not the raw float: 14/10-1 is
+  // 0.3999999999999999 in IEEE754, which would wrongly fail a strict
+  // "< 0.4" check on a true 40% jump — exactly the PRD's own worked example.
   const pct = Math.round(delta * 100);
+  if (pct < C.refundSpikeThreshold * 100) return [];
   const concentration =
     s.topProductName && s.topProductCount > 1
       ? ` — ${s.topProductCount} of ${s.current} on ${s.topProductName}`

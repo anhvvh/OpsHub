@@ -215,6 +215,8 @@
   tbody tr:last-child td { border-bottom: none; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   td .sub { display: block; color: var(--muted); font-size: 12.5px; }
+  .was { color: var(--muted); text-decoration: line-through; font-size: 12px; margin-left: 4px; }
+  code { font-family: var(--font-mono); font-size: 0.92em; background: var(--paper-2); padding: 1px 5px; border-radius: 4px; }
 
   /* ---- Pills / status ---- */
   .pill {
@@ -366,7 +368,7 @@
       <h1>OpsHub</h1>
       <p class="lede">An AI-powered operations cockpit that lets a small online shop see its whole business — orders, stock, payments, and warnings — on one calm screen.</p>
       <div class="meta">
-        <span class="tag"><b>Version</b> 1.0</span>
+        <span class="tag"><b>Version</b> 1.2</span>
         <span class="tag"><b>Type</b> Portfolio MVP</span>
         <span class="tag"><b>Build budget</b> ~2 days, one person + AI</span>
         <span class="tag"><b>Currency</b> Swedish krona (SEK)</span>
@@ -459,8 +461,8 @@
           <p class="goal">See the order pipeline and keep it accurate.</p>
           <ul class="stories">
             <li>As a merchant, I want a <b>list of all orders with clear status badges</b>, so I can see the state of my pipeline at a glance.</li>
-            <li>As a merchant, I want to <b>filter orders by status</b> (Pending payment, Paid, Fulfilled, Delivered, Refunded, Cancelled), so I can work one queue at a time.</li>
-            <li>As a merchant, I want an <b>order detail page</b> with items, customer, amounts, and payment state together, so I don't check three tools.</li>
+            <li>As a merchant, I want to <b>filter orders by status</b> (Pending payment, Paid, Fulfilled, Delivered, Refunded, Cancelled), so I can work one queue at a time. <em>Each column can also be filtered individually</em> (e.g. Amazon orders only), stacking with the status filter — added during the build once the table existed, at no real extra cost.</li>
+            <li>As a merchant, I want an <b>order detail page</b> with items, customer, shipping address, amounts, and payment state together, so I don't check three tools.</li>
             <li>As a merchant, I want a <b>timeline of what happened</b> on each order, so I can reconstruct the story quickly.</li>
             <li>As a merchant, I want to <b>update an order's status</b> and have it stick, so the pipeline stays true when something happens off-system — with the change recorded in the timeline.</li>
           </ul>
@@ -474,7 +476,7 @@
           <ul class="stories">
             <li>As a merchant, I want a <b>product list with current stock levels</b>, so I can review stock health in one place.</li>
             <li>As a merchant, I want products <b>below their low-stock line flagged visually</b>, so at-risk items stand out instantly.</li>
-            <li>As a merchant, I want a <b>product detail page</b> (price, code, stock, threshold, recent sales), so I can decide whether to reorder.</li>
+            <li>As a merchant, I want a <b>product detail page</b> (original &amp; current promotional price, code, stock, threshold, recent sales), so I can decide whether to reorder.</li>
             <li>As a merchant, I want to <b>adjust a product's stock count</b> and have it stick, so I can correct the number after a physical count — and the low-stock warning re-checks immediately.</li>
           </ul>
         </div>
@@ -546,7 +548,7 @@
       <p class="section-sub">Five kinds of warning. Simple rules decide <em>when</em> to raise one and work out the numbers; the AI phrases them as a short headline plus a brief suggested action.</p>
       <p>Each insight is <strong>number-first and glanceable</strong> — not a paragraph. A fixed rulebook watches the data, decides something is worth flagging, and the AI turns the numbers into a crisp headline with one short action line, for example:</p>
       <div class="example">
-        <div class="ex-head">Refunds +40% — 6 of 9 on Lavender Face Serum</div>
+        <div class="ex-head">Refunds +40% — 6 of 9 on Rosehip Night Cream</div>
         <div class="ex-action">→ Check the latest batch.</div>
       </div>
       <p>If the AI is ever unavailable, a plain template built from the same numbers is shown instead, so the demo never breaks.</p>
@@ -557,7 +559,7 @@
         </div>
         <div class="insight">
           <h4>Payment failures rising</h4><span class="pill crit trig">Fixed threshold</span>
-          <p><b>7 failed payments in 24h (usual: 1–2).</b> → Check the payment provider.</p>
+          <p><b>2 failed payments in 24h — card declined, insufficient funds.</b> → Follow up before they churn.</p>
         </div>
         <div class="insight">
           <h4>Revenue trending down</h4><span class="pill neu trig">Vs. prior period</span>
@@ -565,11 +567,11 @@
         </div>
         <div class="insight">
           <h4>A surprise bestseller</h4><span class="pill ok trig">Vs. prior period</span>
-          <p><b>Nordic Night Cream: sales 3× last week.</b> → Protect stock, push marketing.</p>
+          <p><b>Vitamin C Brightening Serum: sales 3× last week.</b> → Protect stock, push marketing.</p>
         </div>
         <div class="insight">
           <h4>Refund spike</h4><span class="pill crit trig">Vs. prior period</span>
-          <p><b>Refunds +40% — 6 of 9 on Lavender Serum.</b> → Check the latest batch.</p>
+          <p><b>Refunds +40% — 6 of 9 on Rosehip Night Cream.</b> → Check the latest batch.</p>
         </div>
       </div>
     </section>
@@ -585,7 +587,9 @@
           <thead><tr><th>Field</th><th>What it holds</th></tr></thead>
           <tbody>
             <tr><td>Name &amp; code (SKU)</td><td>The product's name and unique reference code</td></tr>
-            <tr><td>Price</td><td>Selling price</td></tr>
+            <tr><td>Category</td><td>e.g. Serums, Cleansers, Bundles</td></tr>
+            <tr><td>Original price</td><td>Standard selling price</td></tr>
+            <tr><td>Promotional price</td><td>Current discounted price, if the product is on promo (most are) — shown as the original price struck through beside the live price</td></tr>
             <tr><td>Stock quantity</td><td>How many are currently in stock</td></tr>
             <tr><td>Low-stock threshold</td><td>The level below which it counts as "running low"</td></tr>
           </tbody>
@@ -598,7 +602,7 @@
           <thead><tr><th>Field</th><th>What it holds</th></tr></thead>
           <tbody>
             <tr><td>Order number</td><td>A friendly reference, e.g. OH-1042</td></tr>
-            <tr><td>Customer name &amp; email</td><td>Who placed it</td></tr>
+            <tr><td>Customer name, email &amp; address</td><td>Who placed it, and where to ship it</td></tr>
             <tr><td>Channel</td><td>Where it came from — the shop's own store or Amazon</td></tr>
             <tr><td>Status</td><td>Where it is in its life: Pending payment → Paid → Fulfilled → Delivered, or Refunded / Cancelled</td></tr>
             <tr><td>Total</td><td>The order's total value</td></tr>
@@ -622,6 +626,7 @@
         <div class="tablewrap"><table>
           <thead><tr><th>Field</th><th>What it holds</th></tr></thead>
           <tbody>
+            <tr><td>Payment number</td><td>A friendly reference, e.g. PMT-4471</td></tr>
             <tr><td>Provider</td><td>Who processed it — Stripe or Klarna</td></tr>
             <tr><td>Status</td><td>Pending, Succeeded, Failed, or Refunded</td></tr>
             <tr><td>Amount</td><td>How much</td></tr>
@@ -645,31 +650,42 @@
         <span class="lbl">A deliberate design choice</span>
         <p>There is <strong>no stored "alerts" list</strong>. The AI insights are worked out fresh from the current data every time the dashboard loads — so you "clear" a warning simply by fixing what caused it, and it disappears on its own. Less to maintain, and it can never show a stale warning.</p>
       </div>
+
+      <div class="callout">
+        <span class="lbl">Locked down by default</span>
+        <p>The database's public-facing access is switched off entirely — every table has Row Level Security turned on with no rules granting access, so even the app's own public key can't read or write anything through that door. The only way in is the private server connection the app itself uses, which never reaches the browser.</p>
+      </div>
     </section>
 
     <!-- 7 -->
     <section id="sample">
       <h2><span class="num">07</span> Sample data</h2>
-      <p class="section-sub">One fictional shop — <strong>Hälsa Skincare</strong>, Maria's brand — filled with about a month of realistic activity so the demo tells a coherent story. Roughly 15 products and 300–500 orders across both channels, all in kronor.</p>
+      <p class="section-sub">One fictional shop — <strong>Hälsa Skincare</strong>, Maria's brand — filled with about a month of realistic activity so the demo tells a coherent story. 12 products (SKUs prefixed <code>HAL-</code>) and 300–500 orders across both channels, all in kronor.</p>
 
-      <h3>A sample of the product catalogue</h3>
+      <h3>The product catalogue</h3>
       <div class="tablewrap">
         <table>
-          <caption>Representative rows — the low-stock and surprise-bestseller cases are seeded on purpose so the AI Assistant has something to find.</caption>
+          <caption>All 12 seeded products. "Price" is the current selling price — struck-through where a promotion is active. The low-stock and hot-seller cases are seeded on purpose so the AI Assistant has something to find.</caption>
           <thead>
             <tr><th>Product</th><th>SKU</th><th class="num">Price</th><th class="num">In stock</th><th class="num">Low at</th><th>State</th></tr>
           </thead>
           <tbody>
-            <tr><td>Lavender Face Serum</td><td>HS-SER-LAV</td><td class="num">499 kr</td><td class="num">4</td><td class="num">15</td><td><span class="pill crit">Low stock</span></td></tr>
-            <tr><td>Vitamin C Brightening Serum</td><td>HS-SER-VITC</td><td class="num">549 kr</td><td class="num">9</td><td class="num">15</td><td><span class="pill warn">Low stock</span></td></tr>
-            <tr><td>Daily Gentle Cleanser</td><td>HS-CLN-DLY</td><td class="num">229 kr</td><td class="num">142</td><td class="num">30</td><td><span class="pill ok">Healthy</span></td></tr>
-            <tr><td>Nordic Night Cream</td><td>HS-CRM-NGT</td><td class="num">399 kr</td><td class="num">63</td><td class="num">20</td><td><span class="pill ok">Selling fast</span></td></tr>
-            <tr><td>Hydra-Boost Moisturiser</td><td>HS-CRM-HYD</td><td class="num">349 kr</td><td class="num">88</td><td class="num">25</td><td><span class="pill ok">Healthy</span></td></tr>
-            <tr><td>Calming Facial Toner</td><td>HS-TON-CLM</td><td class="num">279 kr</td><td class="num">51</td><td class="num">20</td><td><span class="pill ok">Healthy</span></td></tr>
-            <tr><td>Complete Care Bundle</td><td>HS-BND-CMP</td><td class="num">899 kr</td><td class="num">37</td><td class="num">10</td><td><span class="pill ok">Healthy</span></td></tr>
+            <tr><td>Lavender Face Serum</td><td>HAL-SER-LAV</td><td class="num">469 kr <span class="was">549</span></td><td class="num">4</td><td class="num">15</td><td><span class="pill crit">Low stock</span></td></tr>
+            <tr><td>Rosehip Cleansing Oil</td><td>HAL-CLN-ROS</td><td class="num">339 kr <span class="was">399</span></td><td class="num">9</td><td class="num">12</td><td><span class="pill crit">Low stock</span></td></tr>
+            <tr><td>Sea Buckthorn Balm</td><td>HAL-BLM-SEA</td><td class="num">389 kr <span class="was">459</span></td><td class="num">11</td><td class="num">15</td><td><span class="pill warn">Low stock</span></td></tr>
+            <tr><td>Vitamin C Brightening Serum</td><td>HAL-SER-VITC</td><td class="num">599 kr <span class="was">699</span></td><td class="num">58</td><td class="num">20</td><td><span class="pill ok">Selling fast</span></td></tr>
+            <tr><td>Chamomile Day Cream</td><td>HAL-CRM-CHA</td><td class="num">369 kr <span class="was">429</span></td><td class="num">42</td><td class="num">15</td><td><span class="pill ok">Healthy</span></td></tr>
+            <tr><td>Rosehip Night Cream</td><td>HAL-CRM-ROS</td><td class="num">409 kr <span class="was">479</span></td><td class="num">63</td><td class="num">15</td><td><span class="pill ok">Healthy</span></td></tr>
+            <tr><td>Gentle Foaming Cleanser</td><td>HAL-CLN-GEN</td><td class="num">209 kr <span class="was">249</span></td><td class="num">88</td><td class="num">20</td><td><span class="pill ok">Healthy</span></td></tr>
+            <tr><td>Nordic Glow Bundle</td><td>HAL-BND-GLW</td><td class="num">749 kr <span class="was">899</span></td><td class="num">24</td><td class="num">10</td><td><span class="pill ok">Healthy</span></td></tr>
+            <tr><td>Birch Sap Toner</td><td>HAL-TON-BIR</td><td class="num">279 kr</td><td class="num">51</td><td class="num">15</td><td><span class="pill ok">Healthy</span></td></tr>
+            <tr><td>Cloudberry Eye Cream</td><td>HAL-EYE-CLB</td><td class="num">389 kr</td><td class="num">33</td><td class="num">12</td><td><span class="pill ok">Healthy</span></td></tr>
+            <tr><td>Oat Milk Recovery Mask</td><td>HAL-MSK-OAT</td><td class="num">329 kr</td><td class="num">47</td><td class="num">15</td><td><span class="pill ok">Healthy</span></td></tr>
+            <tr><td>Midnight Sun Face Oil</td><td>HAL-OIL-MID</td><td class="num">519 kr</td><td class="num">29</td><td class="num">12</td><td><span class="pill ok">Healthy</span></td></tr>
           </tbody>
         </table>
       </div>
+      <p class="section-sub" style="margin-top:10px">Most products carry a promotion (original price struck through); the last four are at full price — showing a promo is optional per product, not store-wide.</p>
 
       <h3>The five stories hidden in the data</h3>
       <p>The month is seeded so each AI warning has a real cause to discover during a demo:</p>
@@ -700,10 +716,15 @@
       <p>A reviewer opening the live app or the README should, within about two minutes, understand the problem, see the product thinking, and feel that the execution is polished and credible.</p>
 
       <h3>What gets automatically tested</h3>
+      <p>This is built and passing — <strong>36 automated checks</strong>, not a plan. Every expected result was written from this document's own numbers before the underlying code was checked, so a failing check would mean the code disagrees with the plan, not the other way round.</p>
       <ul>
         <li><strong>The warning rules</strong> — the heart of the app. Each of the five rules is checked with a case that should fire, a case that shouldn't, and a borderline case exactly on the threshold. Rules that compare to a previous period are also checked for "no earlier data" so they can't misfire.</li>
-        <li><strong>The two saving actions</strong> — updating an order's status saves and adds the right timeline entry; adjusting stock saves and immediately re-checks the low-stock warning. Invalid changes are rejected.</li>
+        <li><strong>The two saving actions</strong> — updating an order's status saves and adds the right timeline entry; adjusting stock saves and immediately re-checks the low-stock warning. Invalid changes are rejected, and both are checked against the real database, not a stand-in.</li>
       </ul>
+      <div class="callout">
+        <span class="lbl">A bug this actually caught</span>
+        <p>Two of the warning rules (revenue trending down, refund spike) were quietly missing their own worked examples because of a computer-arithmetic rounding quirk — a true "40% more refunds" was being read as just barely under the line and staying silent. Writing the tests first is what surfaced this before it could quietly under-report a real problem to a merchant.</p>
+      </div>
 
       <h3>What's checked by hand instead</h3>
       <p>Visual polish and the exact wording of the AI (which naturally varies) are reviewed manually against a short demo checklist: open the dashboard → see the five insights → click each through to its detail screen → update one order → adjust one stock level → watch the low-stock warning disappear.</p>
@@ -737,11 +758,11 @@
           <thead><tr><th>Decision</th><th>Choice</th></tr></thead>
           <tbody>
             <tr><td>How it's built</td><td>A single Next.js web app (React + TypeScript). Secrets like the AI key stay on the server, never in the browser.</td></tr>
-            <tr><td>Where data lives</td><td>A hosted Postgres database, so the two "save" actions survive a page reload.</td></tr>
+            <tr><td>Where data lives</td><td>A hosted Postgres database on Supabase, locked down so its public API grants no access — so the two "save" actions survive a page reload without opening any extra risk.</td></tr>
             <tr><td>Where the data comes from</td><td>Seeded sample data only — no live account connections (built so a real one could be added later).</td></tr>
             <tr><td>Sign-in</td><td>None — it opens straight onto the dashboard (single demo shop).</td></tr>
-            <tr><td>Look &amp; feel</td><td>Warm, editorial, minimal — calm and legible, deliberately unlike cluttered enterprise tools.</td></tr>
-            <tr><td>Where it runs</td><td>A live web address (Vercel), plus a public code repository.</td></tr>
+            <tr><td>Look &amp; feel</td><td>Warm, editorial, minimal — cream, ink and a terracotta accent, paired serif/sans/mono type — calm and legible, deliberately unlike cluttered enterprise tools.</td></tr>
+            <tr><td>Where it runs</td><td>A live web address (Vercel, pending deployment), plus a public code repository — <a href="https://github.com/anhvvh/OpsHub">github.com/anhvvh/OpsHub</a>.</td></tr>
             <tr><td>What ships</td><td>The live app, a repository with a README, a short written case study, and a brief demo video/GIF.</td></tr>
           </tbody>
         </table>
@@ -749,7 +770,7 @@
     </section>
 
     <footer>
-      <p>OpsHub · Plain-language PRD v1.0 · Companion to the full <strong>PRD.md</strong> and <strong>research.md</strong>. Portfolio project — not for commercial release.</p>
+      <p>OpsHub · Plain-language PRD v1.2 · Companion to the full <strong>PRD.md</strong> and <strong>research.md</strong>. Portfolio project — not for commercial release.</p>
     </footer>
   </main>
 </div>

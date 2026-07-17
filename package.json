@@ -7,9 +7,9 @@
     "build": "next build",
     "start": "next start",
     "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:reset": "prisma db push --force-reset && tsx prisma/seed.ts",
-    "test": "tsx --test tests/*.test.ts"
+    "db:seed": "tsx --env-file=.env prisma/seed.ts",
+    "db:reset": "prisma db push --force-reset && tsx --env-file=.env prisma/seed.ts",
+    "test": "tsx --env-file=.env --test tests/*.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
