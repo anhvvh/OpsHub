@@ -1,17 +1,26 @@
 import PaymentsTable from "./PaymentsTable";
-import { PAYMENTS, PAYMENT_SUMMARY, SHOP } from "@/lib/mock";
-import { kr } from "@/lib/format";
+import { listPayments, getPaymentSummary } from "@/lib/queries/payments";
+import { PAYMENT_STATUSES } from "@/lib/domain";
+import { kr, longToday } from "@/lib/format";
 
 export const metadata = { title: "Payments — OpsHub" };
+export const dynamic = "force-dynamic";
 
-export default function PaymentsPage() {
-  const s = PAYMENT_SUMMARY;
+export default async function PaymentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const [payments, s, params] = await Promise.all([listPayments(), getPaymentSummary(), searchParams]);
+  const requested = params.status?.toUpperCase() ?? "";
+  const statuses: readonly string[] = PAYMENT_STATUSES;
+  const initialStatus = statuses.includes(requested) ? requested : "all";
 
   return (
     <main className="page">
       <header className="masthead" style={{ marginBottom: 22, alignItems: "baseline" }}>
         <h1 className="compact" style={{ margin: 0 }}>Payments</h1>
-        <span className="count-note">{SHOP.today}</span>
+        <span className="count-note">Today · {longToday()}</span>
       </header>
 
       <section className="paystrip" aria-label="Today's payment summary">
@@ -42,17 +51,21 @@ export default function PaymentsPage() {
         </div>
       </section>
 
-      <div className="attention-banner">
-        <span className="card-label sev-critical" style={{ marginBottom: 0 }}>✦ Needs attention</span>
-        <span style={{ font: "500 14px var(--font-sans)", color: "var(--ink)" }}>
-          2 payments failed in the last 24h
-        </span>
-        <span style={{ font: "400 13px var(--font-sans)", color: "var(--muted)" }}>
-          — card_declined &amp; insufficient_funds. Follow up before they churn.
-        </span>
-      </div>
+      {s.failedInLast24h > 0 && (
+        <div className="attention-banner">
+          <span className="card-label sev-critical" style={{ marginBottom: 0 }}>✦ Needs attention</span>
+          <span style={{ font: "500 14px var(--font-sans)", color: "var(--ink)" }}>
+            {s.failedInLast24h} payment{s.failedInLast24h === 1 ? "" : "s"} failed in the last 24h
+          </span>
+          {s.failedReasonsLast24h.length > 0 && (
+            <span style={{ font: "400 13px var(--font-sans)", color: "var(--muted)" }}>
+              — {s.failedReasonsLast24h.join(" & ")}. Follow up before they churn.
+            </span>
+          )}
+        </div>
+      )}
 
-      <PaymentsTable payments={PAYMENTS} />
+      <PaymentsTable payments={payments} initialStatus={initialStatus} />
     </main>
   );
 }

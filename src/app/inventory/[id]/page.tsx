@@ -1,17 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductBody from "./ProductBody";
-import { PRODUCTS, productBySku } from "@/lib/mock";
+import { getProductDetail } from "@/lib/queries/inventory";
 import { kr } from "@/lib/format";
 
-export function generateStaticParams() {
-  return PRODUCTS.map((p) => ({ id: p.sku }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = productBySku(decodeURIComponent(id));
-  if (!product) notFound();
+  const detail = await getProductDetail(decodeURIComponent(id));
+  if (!detail) notFound();
+  const { product, sold14, soldThisWeek } = detail;
 
   return (
     <main className="page detail">
@@ -40,7 +39,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         )}
       </header>
 
-      <ProductBody product={product} />
+      <ProductBody product={product} sold14={sold14} soldThisWeek={soldThisWeek} />
     </main>
   );
 }

@@ -1,12 +1,14 @@
 import InventoryTable from "./InventoryTable";
-import { PRODUCTS } from "@/lib/mock";
+import { listProducts } from "@/lib/queries/inventory";
 
 export const metadata = { title: "Inventory — OpsHub" };
+export const dynamic = "force-dynamic";
 
-export default function InventoryPage() {
+export default async function InventoryPage() {
+  const products = await listProducts();
   return (
     <main className="page">
-      <InventoryTable products={PRODUCTS} />
+      <InventoryTable products={products} />
     </main>
   );
 }

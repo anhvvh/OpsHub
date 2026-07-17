@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Tabs from "@/components/Tabs";
 import ColumnFilter from "@/components/ColumnFilter";
 import { OrderBadge } from "@/components/Badge";
-import { STATUS_LABELS } from "@/lib/domain";
-import type { MockOrder } from "@/lib/mock";
-import { kr } from "@/lib/format";
+import { STATUS_LABELS, CHANNEL_LABELS, type OrderStatus, type Channel } from "@/lib/domain";
+import type { listOrders } from "@/lib/queries/orders";
+import { kr, shortDate } from "@/lib/format";
+
+type OrderRow = Awaited<ReturnType<typeof listOrders>>[number];
 
 const TABS = [
   { key: "all", label: "All" },
@@ -19,25 +21,23 @@ const TABS = [
   { key: "CANCELLED", label: "Cancelled" },
 ];
 
-const CHANNEL_LABEL = { SHOPIFY: "Shopify", AMAZON: "Amazon" } as const;
-
 /** Column keys the caret filters operate on, matching the visible columns. */
 type ColKey = "orderNumber" | "date" | "customerName" | "channel" | "total" | "status";
 
-export default function OrdersTable({ orders }: { orders: MockOrder[] }) {
+export default function OrdersTable({ orders }: { orders: OrderRow[] }) {
   const router = useRouter();
   const [tab, setTab] = useState("all");
   // Absent key = no filter on that column; a Set = keep only these values.
   const [cols, setCols] = useState<Partial<Record<ColKey, Set<string>>>>({});
 
-  const cellValue = (o: MockOrder, key: ColKey): string => {
+  const cellValue = (o: OrderRow, key: ColKey): string => {
     switch (key) {
       case "orderNumber": return o.orderNumber;
-      case "date": return o.date;
+      case "date": return shortDate(o.createdAt);
       case "customerName": return o.customerName;
-      case "channel": return CHANNEL_LABEL[o.channel];
+      case "channel": return CHANNEL_LABELS[o.channel as Channel];
       case "total": return kr(o.totalOre);
-      case "status": return STATUS_LABELS[o.status];
+      case "status": return STATUS_LABELS[o.status as OrderStatus];
     }
   };
 
@@ -113,11 +113,11 @@ export default function OrdersTable({ orders }: { orders: MockOrder[] }) {
                 onClick={() => router.push(`/orders/${o.orderNumber}`)}
               >
                 <td className="cell-mono">{o.orderNumber}</td>
-                <td className="cell-sub">{o.date}</td>
+                <td className="cell-sub">{shortDate(o.createdAt)}</td>
                 <td className="cell-main">{o.customerName}</td>
-                <td className="cell-sub" style={{ fontSize: 12.5 }}>{CHANNEL_LABEL[o.channel]}</td>
+                <td className="cell-sub" style={{ fontSize: 12.5 }}>{CHANNEL_LABELS[o.channel as Channel]}</td>
                 <td className="num amount">{kr(o.totalOre)}</td>
-                <td><OrderBadge status={o.status} /></td>
+                <td><OrderBadge status={o.status as OrderStatus} /></td>
               </tr>
             ))}
             {rows.length === 0 && (

@@ -181,7 +181,9 @@ export function refundSpikeRule(s: RefundSpikeSnapshot): Insight[] {
       severity: "critical",
       headline: `Refunds +${pct}%${concentration}`,
       action: s.topProductName ? "Check the latest batch." : "Review recent refunds.",
-      href: s.topProductId ? `/inventory/${s.topProductId}` : "/payments?status=refunded",
+      // PRD §Implementation Decisions ("Cross-linking is a requirement"):
+      // refund spike deep-links to filtered orders/payments, not a product page.
+      href: "/payments?status=refunded",
       facts: {
         refundsLast7: s.current,
         refundsPrior7: s.previous,

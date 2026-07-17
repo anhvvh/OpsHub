@@ -167,7 +167,7 @@ describe("refundSpikeRule — PRD: rate-of-change vs prior 7-day period, concent
     assert.equal(insight.type, "REFUND_SPIKE");
     assert.equal(insight.facts.deltaPct, 40);
     assert.equal(insight.facts.topProduct, "Rosehip Night Cream");
-    assert.equal(insight.href, "/inventory/p-ros"); // PRD cross-linking: refund spike -> product/orders
+    assert.equal(insight.href, "/payments?status=refunded"); // PRD cross-linking: refund spike -> filtered orders/payments
   });
 
   it("does not fire when refunds are flat", () => {

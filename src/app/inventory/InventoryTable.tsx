@@ -3,8 +3,12 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Tabs from "@/components/Tabs";
-import { isLow, type MockProduct } from "@/lib/mock";
+import type { listProducts } from "@/lib/queries/inventory";
 import { kr } from "@/lib/format";
+
+type ProductRow = Awaited<ReturnType<typeof listProducts>>[number];
+
+const isLow = (p: ProductRow) => p.stockQuantity < p.lowStockThreshold;
 
 const TABS = [
   { key: "all", label: "All products" },
@@ -12,7 +16,7 @@ const TABS = [
   { key: "ok", label: "In good health" },
 ];
 
-export default function InventoryTable({ products }: { products: MockProduct[] }) {
+export default function InventoryTable({ products }: { products: ProductRow[] }) {
   const router = useRouter();
   const [tab, setTab] = useState("all");
 

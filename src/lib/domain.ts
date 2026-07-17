@@ -1,5 +1,8 @@
 // Typed lifecycle vocabularies (SQLite can't enforce enums; these do).
 
+/** Single seeded merchant (PRD: no multi-tenancy, no Shop table). */
+export const SHOP_NAME = "Hälsa Skincare";
+
 export const ORDER_STATUSES = [
   "PENDING_PAYMENT",
   "PAID",

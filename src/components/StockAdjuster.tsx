@@ -10,10 +10,15 @@ export default function StockAdjuster({
   stock,
   onChange,
   threshold,
+  disabled = false,
 }: {
   stock: number;
   onChange: (next: number) => void;
   threshold: number;
+  /** True while a write is in flight — blocks a second click before the first's
+   * round trip re-renders `stock`, which would otherwise both compute from the
+   * same stale value and net +1 instead of +2. */
+  disabled?: boolean;
 }) {
   const low = stock < threshold;
 
@@ -63,7 +68,7 @@ export default function StockAdjuster({
             className="stepper"
             aria-label="Decrease stock by one"
             onClick={() => onChange(Math.max(0, stock - 1))}
-            disabled={stock === 0}
+            disabled={disabled || stock === 0}
           >
             −
           </button>
@@ -72,6 +77,7 @@ export default function StockAdjuster({
             className="stepper"
             aria-label="Increase stock by one"
             onClick={() => onChange(stock + 1)}
+            disabled={disabled}
           >
             +
           </button>

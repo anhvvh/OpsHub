@@ -1,12 +1,14 @@
 import OrdersTable from "./OrdersTable";
-import { ORDERS } from "@/lib/mock";
+import { listOrders } from "@/lib/queries/orders";
 
 export const metadata = { title: "Orders — OpsHub" };
+export const dynamic = "force-dynamic";
 
-export default function OrdersPage() {
+export default async function OrdersPage() {
+  const orders = await listOrders();
   return (
     <main className="page">
-      <OrdersTable orders={ORDERS} />
+      <OrdersTable orders={orders} />
     </main>
   );
 }

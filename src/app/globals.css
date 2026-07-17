@@ -343,7 +343,7 @@ tr.rowlink.low:hover { background: #f9e9e1; }
 .sparks span.hot-alt { background: var(--bar-alt); }
 
 /* ---------- insight panel ---------- */
-.lead-insight { border-left: 3px solid var(--crit); padding-left: 22px; }
+.lead-insight { border-left: 3px solid var(--crit); padding-left: 22px; display: block; color: inherit; }
 .lead-insight.warning { border-left-color: var(--warn); }
 .lead-insight.positive { border-left-color: var(--ok); }
 .lead-kicker {
