@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpsHub — Product Requirements (Plain-Language PRD)</title>
+<style>
+  :root {
+    --paper:      #F5F1E9;
+    --paper-2:    #EFEADF;
+    --card:       #FBF8F2;
+    --ink:        #23201B;
+    --muted:      #6E685C;
+    --line:       #E0D9CA;
+    --accent:     #2C6A57;
+    --accent-2:   #E4EEE8;
+    --warn:       #B8791F;
+    --warn-bg:    #F6ECD8;
+    --crit:       #B5482E;
+    --crit-bg:    #F4E2DB;
+    --ok:         #2C6A57;
+    --ok-bg:      #E1EDE7;
+
+    --font-display: "Avenir Next", "Seravek", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-body:    "Charter", "Iowan Old Style", "Palatino Linotype", Georgia, Cambria, serif;
+    --font-mono:    ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
+
+    --maxw: 68ch;
+    --radius: 10px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:   #1B1A17;
+      --paper-2: #211F1B;
+      --card:    #24221D;
+      --ink:     #ECE6D9;
+      --muted:   #9A9284;
+      --line:    #35322B;
+      --accent:  #7CC1A7;
+      --accent-2:#20302A;
+      --warn:    #D9A24A;
+      --warn-bg: #322A1B;
+      --crit:    #E08163;
+      --crit-bg: #322019;
+      --ok:      #7CC1A7;
+      --ok-bg:   #1F2E28;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper:#F5F1E9; --paper-2:#EFEADF; --card:#FBF8F2; --ink:#23201B; --muted:#6E685C;
+    --line:#E0D9CA; --accent:#2C6A57; --accent-2:#E4EEE8; --warn:#B8791F; --warn-bg:#F6ECD8;
+    --crit:#B5482E; --crit-bg:#F4E2DB; --ok:#2C6A57; --ok-bg:#E1EDE7;
+  }
+  :root[data-theme="dark"] {
+    --paper:#1B1A17; --paper-2:#211F1B; --card:#24221D; --ink:#ECE6D9; --muted:#9A9284;
+    --line:#35322B; --accent:#7CC1A7; --accent-2:#20302A; --warn:#D9A24A; --warn-bg:#322A1B;
+    --crit:#E08163; --crit-bg:#322019; --ok:#7CC1A7; --ok-bg:#1F2E28;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .wrap {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 56px;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 40px 32px 96px;
+  }
+
+  /* ---- Table of contents rail ---- */
+  .toc {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    font-family: var(--font-display);
+  }
+  .toc .kicker {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 12px;
+    padding-left: 14px;
+  }
+  .toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+  .toc li { margin: 0; }
+  .toc a {
+    counter-increment: toc;
+    display: block;
+    padding: 6px 12px 6px 14px;
+    border-left: 2px solid var(--line);
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13.5px;
+    line-height: 1.35;
+    transition: color .15s, border-color .15s;
+  }
+  .toc a::before {
+    content: counter(toc) ".";
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    margin-right: 8px;
+  }
+  .toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+  .toc a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .themebtn {
+    margin-top: 24px;
+    margin-left: 14px;
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: .04em;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 6px 14px;
+    cursor: pointer;
+  }
+  .themebtn:hover { color: var(--ink); border-color: var(--accent); }
+  .themebtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---- Main column ---- */
+  main { min-width: 0; max-width: var(--maxw); }
+
+  .masthead { border-bottom: 2px solid var(--ink); padding-bottom: 28px; margin-bottom: 8px; }
+  .eyebrow {
+    font-family: var(--font-display);
+    font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 14px; font-weight: 600;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(34px, 6vw, 52px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    margin: 0 0 16px;
+  }
+  .lede { font-size: 20px; color: var(--muted); margin: 0 0 24px; max-width: 60ch; }
+  .meta { display: flex; flex-wrap: wrap; gap: 10px; font-family: var(--font-display); }
+  .meta .tag {
+    font-size: 12.5px; color: var(--muted);
+    background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: 6px; padding: 5px 11px;
+  }
+  .meta .tag b { color: var(--ink); font-weight: 600; }
+
+  section { padding-top: 52px; scroll-margin-top: 24px; }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 27px; letter-spacing: -0.01em;
+    margin: 0 0 6px; text-wrap: balance;
+    display: flex; align-items: baseline; gap: 12px;
+  }
+  h2 .num {
+    font-size: 15px; color: var(--accent); font-variant-numeric: tabular-nums;
+    font-weight: 600; flex: none;
+  }
+  .section-sub { color: var(--muted); font-size: 15px; margin: 0 0 22px; padding-left: 27px; }
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 650; font-size: 18px; margin: 30px 0 10px; letter-spacing: -0.005em;
+  }
+  p { margin: 0 0 16px; }
+  a { color: var(--accent); }
+  strong { font-weight: 700; }
+
+  ul, ol.list { margin: 0 0 18px; padding-left: 22px; }
+  li { margin: 0 0 8px; }
+
+  .callout {
+    background: var(--accent-2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 16px 20px; margin: 22px 0;
+    font-size: 16px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .lbl {
+    font-family: var(--font-display); font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent); font-weight: 700;
+    display: block; margin-bottom: 6px;
+  }
+
+  /* ---- Tables ---- */
+  .tablewrap { overflow-x: auto; margin: 20px 0; border: 1px solid var(--line); border-radius: var(--radius); }
+  table { border-collapse: collapse; width: 100%; font-family: var(--font-display); font-size: 14px; }
+  caption { text-align: left; caption-side: top; font-family: var(--font-display);
+            font-size: 12.5px; color: var(--muted); padding: 0 0 10px; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th {
+    background: var(--paper-2); color: var(--muted);
+    font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600;
+    position: sticky; top: 0;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td .sub { display: block; color: var(--muted); font-size: 12.5px; }
+
+  /* ---- Pills / status ---- */
+  .pill {
+    display: inline-block; font-family: var(--font-display);
+    font-size: 11.5px; font-weight: 600; letter-spacing: .02em;
+    padding: 3px 9px; border-radius: 20px; white-space: nowrap;
+  }
+  .pill.ok   { background: var(--ok-bg);   color: var(--ok); }
+  .pill.warn { background: var(--warn-bg); color: var(--warn); }
+  .pill.crit { background: var(--crit-bg); color: var(--crit); }
+  .pill.neu  { background: var(--paper-2); color: var(--muted); border: 1px solid var(--line); }
+
+  /* ---- Screen cards ---- */
+  .screens { display: grid; gap: 14px; margin: 20px 0; }
+  .screen {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px 18px; display: grid; grid-template-columns: 34px 1fr; gap: 14px; align-items: start;
+  }
+  .screen .idx {
+    font-family: var(--font-display); font-weight: 700; font-size: 15px;
+    color: var(--accent); font-variant-numeric: tabular-nums;
+    width: 34px; height: 34px; border-radius: 8px; background: var(--accent-2);
+    display: grid; place-items: center;
+  }
+  .screen h4 { font-family: var(--font-display); font-size: 16px; margin: 2px 0 4px; }
+  .screen .route {
+    font-family: var(--font-mono); font-size: 12px; color: var(--muted);
+    background: var(--paper-2); padding: 1px 7px; border-radius: 5px; border: 1px solid var(--line);
+  }
+  .screen p { font-size: 14.5px; color: var(--muted); margin: 8px 0 0; font-family: var(--font-display); line-height: 1.5; }
+
+  /* ---- Persona cards ---- */
+  .personas { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .persona {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px;
+  }
+  .persona .role { font-family: var(--font-display); font-size: 11.5px; letter-spacing: .1em;
+                   text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+  .persona h4 { font-family: var(--font-display); font-size: 20px; margin: 0 0 12px; }
+  .persona dl { margin: 0; font-size: 14.5px; font-family: var(--font-display); }
+  .persona dt { color: var(--muted); font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; margin-top: 12px; }
+  .persona dt:first-child { margin-top: 0; }
+  .persona dd { margin: 3px 0 0; line-height: 1.5; }
+
+  /* ---- Feature / story blocks ---- */
+  .feature { border: 1px solid var(--line); border-radius: var(--radius); margin: 16px 0; overflow: hidden; }
+  .feature > summary {
+    list-style: none; cursor: pointer; padding: 16px 18px; background: var(--card);
+    display: flex; align-items: center; gap: 12px; font-family: var(--font-display);
+  }
+  .feature > summary::-webkit-details-marker { display: none; }
+  .feature > summary .chev { margin-left: auto; color: var(--muted); transition: transform .18s; }
+  .feature[open] > summary .chev { transform: rotate(90deg); }
+  .feature > summary .mtag {
+    font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-2);
+    padding: 3px 8px; border-radius: 6px; letter-spacing: .04em; flex: none;
+  }
+  .feature > summary h4 { font-size: 17px; margin: 0; font-weight: 650; }
+  .feature .body { padding: 4px 18px 18px; }
+  .feature .body .goal { font-size: 15px; color: var(--muted); margin: 12px 0 14px; }
+  .stories { list-style: none; padding: 0; margin: 0; }
+  .stories li {
+    font-family: var(--font-display); font-size: 14.5px; line-height: 1.5;
+    padding: 8px 0 8px 26px; position: relative; border-top: 1px solid var(--line);
+  }
+  .stories li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+  }
+  .stories li b { color: var(--ink); font-weight: 650; }
+
+  /* ---- Insight example block ---- */
+  .example {
+    background: var(--card); border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 14px 18px; margin: 18px 0; font-family: var(--font-display);
+  }
+  .example .ex-head { font-weight: 700; font-size: 16px; letter-spacing: -0.005em; }
+  .example .ex-action { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  /* ---- Insight scenario list ---- */
+  .insights { display: grid; gap: 12px; margin: 20px 0; }
+  .insight {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 15px 18px; display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; align-items: center;
+  }
+  .insight h4 { font-family: var(--font-display); font-size: 15.5px; margin: 0; }
+  .insight p { font-family: var(--font-display); font-size: 13.5px; color: var(--muted); margin: 0; grid-column: 1 / -1; line-height: 1.5; }
+  .insight p b { color: var(--ink); font-weight: 650; font-variant-numeric: tabular-nums; }
+  .insight .trig { justify-self: end; }
+
+  /* ---- Data-entity cards ---- */
+  .entity { border: 1px solid var(--line); border-radius: var(--radius); margin: 16px 0; overflow: hidden; }
+  .entity .ehead {
+    background: var(--paper-2); padding: 12px 16px; display: flex; align-items: baseline; gap: 10px;
+    font-family: var(--font-display);
+  }
+  .entity .ehead .en { font-weight: 700; font-size: 16px; }
+  .entity .ehead .ed { font-size: 13px; color: var(--muted); }
+  .entity .tablewrap { margin: 0; border: none; border-radius: 0; }
+  .entity .tablewrap table { font-size: 13.5px; }
+  .entity .tablewrap thead th { background: var(--card); }
+
+  .twocol { columns: 2; column-gap: 34px; }
+  .twocol li { break-inside: avoid; }
+
+  footer {
+    margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--line);
+    font-family: var(--font-display); font-size: 13px; color: var(--muted);
+  }
+
+  @media (max-width: 860px) {
+    .wrap { grid-template-columns: 1fr; gap: 8px; padding: 24px 20px 72px; }
+    .toc { position: static; max-height: none; margin-bottom: 12px;
+           border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; background: var(--card); }
+    .toc.collapsed ol, .toc.collapsed .themebtn { display: none; }
+    main { max-width: none; }
+    .personas { grid-template-columns: 1fr; }
+    .twocol { columns: 1; }
+    body { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ TABLE OF CONTENTS ============ -->
+  <nav class="toc" aria-label="Table of contents">
+    <p class="kicker">Contents</p>
+    <ol>
+      <li><a href="#overview">The idea, in plain terms</a></li>
+      <li><a href="#users">Who it's for</a></li>
+      <li><a href="#features">What you can do</a></li>
+      <li><a href="#screens">The screens</a></li>
+      <li><a href="#assistant">The AI Assistant</a></li>
+      <li><a href="#data">The information behind it</a></li>
+      <li><a href="#sample">Sample data</a></li>
+      <li><a href="#done">How we'll know it works</a></li>
+      <li><a href="#scope">What's deliberately left out</a></li>
+      <li><a href="#build">Build &amp; delivery notes</a></li>
+    </ol>
+    <button class="themebtn" id="themebtn" type="button">◐ Switch theme</button>
+  </nav>
+
+  <!-- ============ MAIN ============ -->
+  <main>
+    <header class="masthead">
+      <p class="eyebrow">Product Requirements · Plain-language edition</p>
+      <h1>OpsHub</h1>
+      <p class="lede">An AI-powered operations cockpit that lets a small online shop see its whole business — orders, stock, payments, and warnings — on one calm screen.</p>
+      <div class="meta">
+        <span class="tag"><b>Version</b> 1.0</span>
+        <span class="tag"><b>Type</b> Portfolio MVP</span>
+        <span class="tag"><b>Build budget</b> ~2 days, one person + AI</span>
+        <span class="tag"><b>Currency</b> Swedish krona (SEK)</span>
+      </div>
+    </header>
+
+    <!-- 1 -->
+    <section id="overview">
+      <h2><span class="num">01</span> The idea, in plain terms</h2>
+      <p class="section-sub">The problem we're solving and the shape of the answer.</p>
+
+      <h3>The problem</h3>
+      <p>A small online shop is run across five or six separate tools — the web store, a marketplace like Amazon, a payment service, an inventory list, and a spreadsheet. None of them talks to the others. So the owner has no single place that answers the one question they ask every morning: <em>"How is my business doing right now, and what needs my attention?"</em></p>
+      <p>Because nobody is watching automatically, problems are found late — a bestseller sells out mid-promotion, a payment provider quietly starts failing, refunds spike on a bad batch — usually only after a customer complains or the payout comes in smaller than expected. Industry research suggests juggling these tools can cost a multi-channel shop up to <strong>14 hours a week</strong>.</p>
+
+      <h3>Why the tools they already have don't fix it</h3>
+      <ul>
+        <li><strong>Big business systems (ERPs)</strong> take months and tens of thousands of kronor to set up — built for accounting depth, not a quick daily glance.</li>
+        <li><strong>Store and marketplace dashboards</strong> each only show their own corner. Two sales channels still means two separate pictures to reconcile by hand.</li>
+        <li><strong>Payment dashboards</strong> are excellent at payments but blind to stock and orders.</li>
+        <li><strong>Spreadsheets</strong> are fully manual and go out of date the moment someone forgets to update them.</li>
+      </ul>
+
+      <h3>The solution</h3>
+      <p>Meet <strong>OpsHub</strong> — a lightweight web dashboard that brings the four things a merchant checks daily (orders, stock, payments, revenue) into one clean view, and adds an <strong>AI Operations Assistant</strong> that taps the owner on the shoulder about the few things that actually need attention — instead of waiting to be asked.</p>
+      <div class="callout">
+        <span class="lbl">What OpsHub is not</span>
+        <p>It is not a cash register (POS), not a giant business system (ERP), and not a store builder. It's a calm monitoring cockpit with just a couple of real actions (update an order, adjust stock). The goal: understand your business in under two minutes each morning.</p>
+      </div>
+      <div class="callout">
+        <span class="lbl">This is a portfolio project</span>
+        <p>OpsHub exists to demonstrate product, business-analysis, and system-design thinking — not to be sold. <strong>Success</strong> means a reviewer grasps the problem, the thinking, and the value within about two minutes of opening the app, and the result feels polished and credible rather than a rough prototype.</p>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section id="users">
+      <h2><span class="num">02</span> Who it's for</h2>
+      <p class="section-sub">Two realistic people the product is designed around.</p>
+      <div class="personas">
+        <article class="persona">
+          <p class="role">Primary user</p>
+          <h4>Maria — the owner</h4>
+          <dl>
+            <dt>Her business</dt>
+            <dd>Founder and only full-time employee of a Swedish skincare brand. About 40–80 orders a day, ~150 products, selling through her own store plus Amazon.</dd>
+            <dt>What she wants</dt>
+            <dd>To catch problems before customers or her accountant do — and spend less time "checking things" across five browser tabs every morning.</dd>
+            <dt>Comfort with tech</dt>
+            <dd>Fluent with everyday apps, but not a developer. Wants things ready-to-read at a glance, not reports she has to build.</dd>
+          </dl>
+        </article>
+        <article class="persona">
+          <p class="role">Secondary user</p>
+          <h4>Jonas — the assistant</h4>
+          <dl>
+            <dt>His role</dt>
+            <dd>Part-time helper at a slightly larger shop (5–10 people). Handles daily order triage and customer replies.</dd>
+            <dt>What he wants</dt>
+            <dd>A simple, guided view of what needs attention today — without admin access to every backend tool.</dd>
+            <dt>Comfort with tech</dt>
+            <dd>Confident with email and spreadsheets; not a power user of complex business software.</dd>
+          </dl>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section id="features">
+      <h2><span class="num">03</span> What you can do</h2>
+      <p class="section-sub">The five parts of OpsHub, each written as the goals it serves. Click any part to expand its user stories.</p>
+
+      <details class="feature" open>
+        <summary><span class="mtag">Part 1</span><h4>Merchant Dashboard — the home screen</h4><span class="chev">›</span></summary>
+        <div class="body">
+          <p class="goal">One glance answers "how is today going, and what needs me?" This is the centerpiece.</p>
+          <ul class="stories">
+            <li>As a merchant, I want <b>today's revenue, order count, pending payments, and open refunds</b> shown as big clear numbers, so I know how the day is going without opening any other tool.</li>
+            <li>As a merchant, I want each number shown <b>next to a comparison with a normal period</b>, so I can tell whether today is unusual.</li>
+            <li>As a merchant, I want <b>low-stock warnings</b> right on the home screen, so I never sell out of a bestseller by surprise.</li>
+            <li>As a merchant, I want the <b>AI insights shown prominently</b>, so the most important issues find me rather than me hunting for them.</li>
+            <li>As a merchant, I want <b>every number and warning to be clickable</b> straight to its detail screen, so I go from "something's off" to "here's why" in one click.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="feature">
+        <summary><span class="mtag">Part 2</span><h4>Orders</h4><span class="chev">›</span></summary>
+        <div class="body">
+          <p class="goal">See the order pipeline and keep it accurate.</p>
+          <ul class="stories">
+            <li>As a merchant, I want a <b>list of all orders with clear status badges</b>, so I can see the state of my pipeline at a glance.</li>
+            <li>As a merchant, I want to <b>filter orders by status</b> (Pending payment, Paid, Fulfilled, Delivered, Refunded, Cancelled), so I can work one queue at a time.</li>
+            <li>As a merchant, I want an <b>order detail page</b> with items, customer, amounts, and payment state together, so I don't check three tools.</li>
+            <li>As a merchant, I want a <b>timeline of what happened</b> on each order, so I can reconstruct the story quickly.</li>
+            <li>As a merchant, I want to <b>update an order's status</b> and have it stick, so the pipeline stays true when something happens off-system — with the change recorded in the timeline.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="feature">
+        <summary><span class="mtag">Part 3</span><h4>Inventory</h4><span class="chev">›</span></summary>
+        <div class="body">
+          <p class="goal">Know stock health without a warehouse tool.</p>
+          <ul class="stories">
+            <li>As a merchant, I want a <b>product list with current stock levels</b>, so I can review stock health in one place.</li>
+            <li>As a merchant, I want products <b>below their low-stock line flagged visually</b>, so at-risk items stand out instantly.</li>
+            <li>As a merchant, I want a <b>product detail page</b> (price, code, stock, threshold, recent sales), so I can decide whether to reorder.</li>
+            <li>As a merchant, I want to <b>adjust a product's stock count</b> and have it stick, so I can correct the number after a physical count — and the low-stock warning re-checks immediately.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="feature">
+        <summary><span class="mtag">Part 4</span><h4>Payments</h4><span class="chev">›</span></summary>
+        <div class="body">
+          <p class="goal">Payment health, visible without opening Stripe or Klarna.</p>
+          <ul class="stories">
+            <li>As a merchant, I want a <b>payments list with statuses</b> (pending, succeeded, failed, refunded), so payment health is visible in one place.</li>
+            <li>As a merchant, I want <b>failed payments called out separately</b>, so I catch processor trouble within hours, not days.</li>
+            <li>As a merchant, I want to see <b>which refunds are still pending</b>, so I know which customers are waiting for money back.</li>
+            <li>As a merchant, I want a <b>daily payment summary</b>, so end-of-day reconciliation takes seconds.</li>
+            <li>As a merchant, I want each payment <b>linked to its order</b>, so I can jump from a failed payment to the affected order in one click.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="feature">
+        <summary><span class="mtag">Part 5</span><h4>AI Operations Assistant</h4><span class="chev">›</span></summary>
+        <div class="body">
+          <p class="goal">Not a chatbot — a short, ranked list of "here's what needs you, and what to do." Detailed in <a href="#assistant">section 5</a>.</p>
+          <ul class="stories">
+            <li>As a merchant, I want to be <b>warned proactively</b> about low stock, rising payment failures, falling revenue, a surprise bestseller, or a refund spike — so problems find me early.</li>
+            <li>As a merchant, I want each insight as a <b>short, number-first headline plus one brief action</b>, so I grasp it at a glance and know what to do — not a paragraph to read.</li>
+            <li>As a merchant, I want insights <b>ranked and kept few</b>, so the assistant never becomes noise I learn to ignore.</li>
+            <li>As a merchant, I want each insight to <b>deep-link</b> to the relevant product, order, or payment, so acting on it takes one click.</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+
+    <!-- 4 -->
+    <section id="screens">
+      <h2><span class="num">04</span> The screens</h2>
+      <p class="section-sub">Six screens in total. The AI Assistant lives on the dashboard rather than on its own screen — keeping warnings on the home view is the whole point.</p>
+      <div class="screens">
+        <div class="screen"><div class="idx">1</div><div>
+          <h4>Merchant Dashboard <span class="route">/</span></h4>
+          <p>Headline numbers (revenue, orders, pending payments, open refunds) with comparisons, the low-stock list, and the AI insights panel — everything clickable.</p>
+        </div></div>
+        <div class="screen"><div class="idx">2</div><div>
+          <h4>Orders list <span class="route">/orders</span></h4>
+          <p>A table of orders — number, date, customer, channel, total, and status badge — with filter tabs, newest first.</p>
+        </div></div>
+        <div class="screen"><div class="idx">3</div><div>
+          <h4>Order detail <span class="route">/orders/…</span></h4>
+          <p>Customer, items, totals, linked payment state, an event timeline, and the control to update the order's status.</p>
+        </div></div>
+        <div class="screen"><div class="idx">4</div><div>
+          <h4>Inventory list <span class="route">/inventory</span></h4>
+          <p>Products with code, price, current stock, and threshold — low-stock rows visually distinct.</p>
+        </div></div>
+        <div class="screen"><div class="idx">5</div><div>
+          <h4>Product detail <span class="route">/inventory/…</span></h4>
+          <p>Product facts, stock versus threshold, a recent-sales snapshot, and the control to adjust the stock count.</p>
+        </div></div>
+        <div class="screen"><div class="idx">6</div><div>
+          <h4>Payments <span class="route">/payments</span></h4>
+          <p>A daily summary card, the payments table with status badges and failure reasons, failed payments highlighted, each row linking to its order.</p>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section id="assistant">
+      <h2><span class="num">05</span> The AI Assistant, in detail</h2>
+      <p class="section-sub">Five kinds of warning. Simple rules decide <em>when</em> to raise one and work out the numbers; the AI phrases them as a short headline plus a brief suggested action.</p>
+      <p>Each insight is <strong>number-first and glanceable</strong> — not a paragraph. A fixed rulebook watches the data, decides something is worth flagging, and the AI turns the numbers into a crisp headline with one short action line, for example:</p>
+      <div class="example">
+        <div class="ex-head">Refunds +40% — 6 of 9 on Lavender Face Serum</div>
+        <div class="ex-action">→ Check the latest batch.</div>
+      </div>
+      <p>If the AI is ever unavailable, a plain template built from the same numbers is shown instead, so the demo never breaks.</p>
+      <div class="insights">
+        <div class="insight">
+          <h4>Stock running low</h4><span class="pill warn trig">Fixed threshold</span>
+          <p><b>Lavender Face Serum: 4 left (low at 15).</b> → Reorder now.</p>
+        </div>
+        <div class="insight">
+          <h4>Payment failures rising</h4><span class="pill crit trig">Fixed threshold</span>
+          <p><b>7 failed payments in 24h (usual: 1–2).</b> → Check the payment provider.</p>
+        </div>
+        <div class="insight">
+          <h4>Revenue trending down</h4><span class="pill neu trig">Vs. prior period</span>
+          <p><b>Revenue −20% vs. last week.</b> → Review before month-end.</p>
+        </div>
+        <div class="insight">
+          <h4>A surprise bestseller</h4><span class="pill ok trig">Vs. prior period</span>
+          <p><b>Nordic Night Cream: sales 3× last week.</b> → Protect stock, push marketing.</p>
+        </div>
+        <div class="insight">
+          <h4>Refund spike</h4><span class="pill crit trig">Vs. prior period</span>
+          <p><b>Refunds +40% — 6 of 9 on Lavender Serum.</b> → Check the latest batch.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section id="data">
+      <h2><span class="num">06</span> The information behind it</h2>
+      <p class="section-sub">The five kinds of record OpsHub keeps, in plain terms. (Money is stored in the smallest currency unit — öre — to avoid rounding errors, and shown as kronor.)</p>
+
+      <div class="entity">
+        <div class="ehead"><span class="en">Product</span><span class="ed">something you sell</span></div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Field</th><th>What it holds</th></tr></thead>
+          <tbody>
+            <tr><td>Name &amp; code (SKU)</td><td>The product's name and unique reference code</td></tr>
+            <tr><td>Price</td><td>Selling price</td></tr>
+            <tr><td>Stock quantity</td><td>How many are currently in stock</td></tr>
+            <tr><td>Low-stock threshold</td><td>The level below which it counts as "running low"</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="entity">
+        <div class="ehead"><span class="en">Order</span><span class="ed">a customer's purchase</span></div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Field</th><th>What it holds</th></tr></thead>
+          <tbody>
+            <tr><td>Order number</td><td>A friendly reference, e.g. OH-1042</td></tr>
+            <tr><td>Customer name &amp; email</td><td>Who placed it</td></tr>
+            <tr><td>Channel</td><td>Where it came from — the shop's own store or Amazon</td></tr>
+            <tr><td>Status</td><td>Where it is in its life: Pending payment → Paid → Fulfilled → Delivered, or Refunded / Cancelled</td></tr>
+            <tr><td>Total</td><td>The order's total value</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="entity">
+        <div class="ehead"><span class="en">Order item</span><span class="ed">one line on an order</span></div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Field</th><th>What it holds</th></tr></thead>
+          <tbody>
+            <tr><td>Product &amp; quantity</td><td>Which product, and how many</td></tr>
+            <tr><td>Unit price at sale</td><td>The price when the order was placed (may differ from today's price)</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="entity">
+        <div class="ehead"><span class="en">Payment</span><span class="ed">the money for an order</span></div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Field</th><th>What it holds</th></tr></thead>
+          <tbody>
+            <tr><td>Provider</td><td>Who processed it — Stripe or Klarna</td></tr>
+            <tr><td>Status</td><td>Pending, Succeeded, Failed, or Refunded</td></tr>
+            <tr><td>Amount</td><td>How much</td></tr>
+            <tr><td>Failure reason</td><td>If it failed, why — e.g. "card declined"</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="entity">
+        <div class="ehead"><span class="en">Order event</span><span class="ed">a line in an order's timeline</span></div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Field</th><th>What it holds</th></tr></thead>
+          <tbody>
+            <tr><td>Type &amp; description</td><td>What happened — order placed, payment received, status changed…</td></tr>
+            <tr><td>Time</td><td>When it happened</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="callout">
+        <span class="lbl">A deliberate design choice</span>
+        <p>There is <strong>no stored "alerts" list</strong>. The AI insights are worked out fresh from the current data every time the dashboard loads — so you "clear" a warning simply by fixing what caused it, and it disappears on its own. Less to maintain, and it can never show a stale warning.</p>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section id="sample">
+      <h2><span class="num">07</span> Sample data</h2>
+      <p class="section-sub">One fictional shop — <strong>Hälsa Skincare</strong>, Maria's brand — filled with about a month of realistic activity so the demo tells a coherent story. Roughly 15 products and 300–500 orders across both channels, all in kronor.</p>
+
+      <h3>A sample of the product catalogue</h3>
+      <div class="tablewrap">
+        <table>
+          <caption>Representative rows — the low-stock and surprise-bestseller cases are seeded on purpose so the AI Assistant has something to find.</caption>
+          <thead>
+            <tr><th>Product</th><th>SKU</th><th class="num">Price</th><th class="num">In stock</th><th class="num">Low at</th><th>State</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Lavender Face Serum</td><td>HS-SER-LAV</td><td class="num">499 kr</td><td class="num">4</td><td class="num">15</td><td><span class="pill crit">Low stock</span></td></tr>
+            <tr><td>Vitamin C Brightening Serum</td><td>HS-SER-VITC</td><td class="num">549 kr</td><td class="num">9</td><td class="num">15</td><td><span class="pill warn">Low stock</span></td></tr>
+            <tr><td>Daily Gentle Cleanser</td><td>HS-CLN-DLY</td><td class="num">229 kr</td><td class="num">142</td><td class="num">30</td><td><span class="pill ok">Healthy</span></td></tr>
+            <tr><td>Nordic Night Cream</td><td>HS-CRM-NGT</td><td class="num">399 kr</td><td class="num">63</td><td class="num">20</td><td><span class="pill ok">Selling fast</span></td></tr>
+            <tr><td>Hydra-Boost Moisturiser</td><td>HS-CRM-HYD</td><td class="num">349 kr</td><td class="num">88</td><td class="num">25</td><td><span class="pill ok">Healthy</span></td></tr>
+            <tr><td>Calming Facial Toner</td><td>HS-TON-CLM</td><td class="num">279 kr</td><td class="num">51</td><td class="num">20</td><td><span class="pill ok">Healthy</span></td></tr>
+            <tr><td>Complete Care Bundle</td><td>HS-BND-CMP</td><td class="num">899 kr</td><td class="num">37</td><td class="num">10</td><td><span class="pill ok">Healthy</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>The five stories hidden in the data</h3>
+      <p>The month is seeded so each AI warning has a real cause to discover during a demo:</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Scenario</th><th>How it's set up in the data</th></tr></thead>
+          <tbody>
+            <tr><td><span class="pill crit">Low stock</span></td><td>2–3 products seeded below their threshold — e.g. Lavender Serum at 4 units (low at 15).</td></tr>
+            <tr><td><span class="pill crit">Failures rising</span></td><td>A cluster of failed payments in the last day or two, pushing the count over the line.</td></tr>
+            <tr><td><span class="pill neu">Revenue down</span></td><td>Last 7 days seeded meaningfully below the previous 7 (about −20%).</td></tr>
+            <tr><td><span class="pill ok">Surprise bestseller</span></td><td>One product selling roughly 3× its usual weekly pace.</td></tr>
+            <tr><td><span class="pill crit">Refund spike</span></td><td>Refunds this week concentrated on one product, well above last week.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <span class="lbl">Why this matters</span>
+        <p>The sample data is treated as a real part of the product, not an afterthought. The demo's credibility rests on it telling a believable month in the life of Hälsa Skincare — with five genuine problems waiting to be found.</p>
+      </div>
+    </section>
+
+    <!-- 8 -->
+    <section id="done">
+      <h2><span class="num">08</span> How we'll know it works</h2>
+      <p class="section-sub">What "finished and correct" means for this project.</p>
+
+      <h3>The success bar</h3>
+      <p>A reviewer opening the live app or the README should, within about two minutes, understand the problem, see the product thinking, and feel that the execution is polished and credible.</p>
+
+      <h3>What gets automatically tested</h3>
+      <ul>
+        <li><strong>The warning rules</strong> — the heart of the app. Each of the five rules is checked with a case that should fire, a case that shouldn't, and a borderline case exactly on the threshold. Rules that compare to a previous period are also checked for "no earlier data" so they can't misfire.</li>
+        <li><strong>The two saving actions</strong> — updating an order's status saves and adds the right timeline entry; adjusting stock saves and immediately re-checks the low-stock warning. Invalid changes are rejected.</li>
+      </ul>
+
+      <h3>What's checked by hand instead</h3>
+      <p>Visual polish and the exact wording of the AI (which naturally varies) are reviewed manually against a short demo checklist: open the dashboard → see the five insights → click each through to its detail screen → update one order → adjust one stock level → watch the low-stock warning disappear.</p>
+    </section>
+
+    <!-- 9 -->
+    <section id="scope">
+      <h2><span class="num">09</span> What's deliberately left out</h2>
+      <p class="section-sub">Saying no is the point — every competitor studied got into trouble by adding depth and clutter. These are out of scope on purpose.</p>
+      <ul class="twocol">
+        <li>Live connections to real Shopify, Stripe, Klarna, or Amazon accounts</li>
+        <li>Logins, user accounts, roles, or multiple businesses</li>
+        <li>A chat/conversation interface for the assistant</li>
+        <li>Full-text order search, bulk actions, merging channels</li>
+        <li>Multi-warehouse stock syncing or batch/serial tracking</li>
+        <li>Demand forecasting</li>
+        <li>Payment disputes, bank reconciliation, payout scheduling</li>
+        <li>Accounting or bookkeeping features</li>
+        <li>Customer-service / helpdesk tools; shipping labels</li>
+        <li>Email, SMS, or Slack notifications</li>
+        <li>Native mobile apps (the web app is responsive; desktop is the demo target)</li>
+      </ul>
+    </section>
+
+    <!-- 10 -->
+    <section id="build">
+      <h2><span class="num">10</span> Build &amp; delivery notes</h2>
+      <p class="section-sub">The practical decisions, kept brief.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Decision</th><th>Choice</th></tr></thead>
+          <tbody>
+            <tr><td>How it's built</td><td>A single Next.js web app (React + TypeScript). Secrets like the AI key stay on the server, never in the browser.</td></tr>
+            <tr><td>Where data lives</td><td>A hosted Postgres database, so the two "save" actions survive a page reload.</td></tr>
+            <tr><td>Where the data comes from</td><td>Seeded sample data only — no live account connections (built so a real one could be added later).</td></tr>
+            <tr><td>Sign-in</td><td>None — it opens straight onto the dashboard (single demo shop).</td></tr>
+            <tr><td>Look &amp; feel</td><td>Warm, editorial, minimal — calm and legible, deliberately unlike cluttered enterprise tools.</td></tr>
+            <tr><td>Where it runs</td><td>A live web address (Vercel), plus a public code repository.</td></tr>
+            <tr><td>What ships</td><td>The live app, a repository with a README, a short written case study, and a brief demo video/GIF.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      <p>OpsHub · Plain-language PRD v1.0 · Companion to the full <strong>PRD.md</strong> and <strong>research.md</strong>. Portfolio project — not for commercial release.</p>
+    </footer>
+  </main>
+</div>
+
+<script>
+  (function () {
+    var btn = document.getElementById('themebtn');
+    function current() {
+      var set = document.documentElement.getAttribute('data-theme');
+      if (set) return set;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    btn.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# database
+prisma/dev.db
+prisma/dev.db-journal
+
+# env — never commit secrets
+.env
+.env.local
+.env*.local
+
+# local AI tooling (installed skill packs) — not part of the product
+.agents/
+.claude/
+skills-lock.json
+
+.DS_Store
+.vercel

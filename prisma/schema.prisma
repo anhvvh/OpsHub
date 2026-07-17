@@ -1,0 +1,88 @@
+// OpsHub data model — see PRD.md §Database Model.
+// Postgres (hosted on Supabase) for both local dev and production, so the
+// persisted writes required by the PRD behave identically in each.
+// Lifecycle fields are strings validated by the typed constants in
+// src/lib/domain.ts rather than native Postgres enums, so that adding a
+// status never requires a schema migration.
+//
+// Security: every table has RLS enabled with no policies, so the Supabase
+// anon/public API grants zero access. Prisma connects as the owner role,
+// which bypasses RLS by design. See README for the full rationale.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Runtime queries go through Supabase's transaction-mode pooler (port 6543),
+  // which is what serverless functions need — each invocation borrows a
+  // connection instead of exhausting Postgres with direct ones.
+  url       = env("DATABASE_URL")
+  // Migrations need a session-mode connection (port 5432): DDL cannot run
+  // under pgbouncer's transaction pooling.
+  directUrl = env("DIRECT_URL")
+}
+
+model Product {
+  id                String      @id @default(cuid())
+  sku               String      @unique
+  name              String
+  category          String
+  description       String?
+  priceOre          Int // original price, in öre
+  promoPriceOre     Int? // current promotional price, if on promo
+  stockQuantity     Int
+  lowStockThreshold Int         @default(10)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  orderItems        OrderItem[]
+}
+
+model Order {
+  id            String       @id @default(cuid())
+  orderNumber   String       @unique // e.g. "OH-1042"
+  customerName  String
+  customerEmail String
+  shippingAddress String
+  channel       String // SHOPIFY | AMAZON
+  status        String // PENDING_PAYMENT | PAID | FULFILLED | DELIVERED | REFUNDED | CANCELLED
+  totalOre      Int
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  items         OrderItem[]
+  payment       Payment?
+  events        OrderEvent[]
+}
+
+model OrderItem {
+  id           String  @id @default(cuid())
+  orderId      String
+  productId    String
+  quantity     Int
+  unitPriceOre Int // price at time of sale
+  order        Order   @relation(fields: [orderId], references: [id])
+  product      Product @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  paymentNumber String   @unique // e.g. "PMT-4471"
+  orderId       String   @unique
+  provider      String // STRIPE | KLARNA
+  status        String // PENDING | SUCCEEDED | FAILED | REFUNDED
+  amountOre     Int
+  failureReason String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  order         Order    @relation(fields: [orderId], references: [id])
+}
+
+model OrderEvent {
+  id          String   @id @default(cuid())
+  orderId     String
+  type        String // ORDER_PLACED | PAYMENT_RECEIVED | PAYMENT_FAILED | FULFILLED | DELIVERED | STATUS_CHANGED | REFUNDED | CANCELLED
+  description String
+  createdAt   DateTime @default(now())
+  order       Order    @relation(fields: [orderId], references: [id])
+}
